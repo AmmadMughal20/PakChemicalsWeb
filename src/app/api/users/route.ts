@@ -3,6 +3,16 @@ import dbConnect from '@/lib/dbConnect'; // A helper to connect MongoDB
 import UserModel from '@/models/User'; // Your model path
 import bcrypt from 'bcryptjs';
 
+
+interface UserPost
+{
+    name: string;
+    phone: string;
+    password: string;
+    role: string;
+    email?: string;
+    address?: string;
+}
 // GET /api/users
 export async function GET()
 {
@@ -27,7 +37,7 @@ export async function POST(req: NextRequest)
         );
     }
 
-    let body: any;
+    let body: UserPost;
 
     try
     {
@@ -35,7 +45,7 @@ export async function POST(req: NextRequest)
     } catch (error)
     {
         return NextResponse.json(
-            { error: 'Invalid JSON format' },
+            { message: 'Invalid JSON format', error: error },
             { status: 400 }
         );
     }
@@ -93,13 +103,18 @@ export async function POST(req: NextRequest)
             password: hashedPassword,
         });
 
-        const userObj = newUser.toObject();
-        delete userObj.password;
+        const { password: _, ...userWithoutPassword } = newUser.toObject();
+        void _
 
-        return NextResponse.json(userObj, { status: 201 });
-    } catch (err: any)
+        return NextResponse.json(userWithoutPassword, { status: 201 });
+    } catch (err: unknown)
     {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        // fallback for non-Error objects
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }
 

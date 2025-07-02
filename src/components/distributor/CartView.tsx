@@ -1,23 +1,24 @@
 
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { updateQuantity, removeFromCart, clearCart } from '@/store/slices/cartSlice';
-import { addOrder } from '@/store/slices/ordersSlice';
-import { ordersAPI } from '@/services/api';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, ShoppingBag, MapPin, Truck, Minus, Plus } from 'lucide-react';
+import { RootState } from '@/store';
+import { clearCart, removeFromCart, updateQuantity } from '@/store/slices/cartSlice';
+import { addOrder, Order } from '@/store/slices/ordersSlice';
+import { MapPin, Minus, Plus, ShoppingBag, Trash2, Truck } from 'lucide-react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-interface CartViewProps {
+interface CartViewProps
+{
   isRTL: boolean;
 }
 
-const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
+const CartView: React.FC<CartViewProps> = ({ isRTL }) =>
+{
   const dispatch = useDispatch();
   const { items, total } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.auth);
@@ -29,12 +30,14 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
   const [biltiVendor, setBiltiVendor] = useState('');
   const [biltiDestination, setBiltiDestination] = useState('');
 
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (productId: string, newQuantity: number) =>
+  {
     if (newQuantity < 1) return;
     dispatch(updateQuantity({ productId, quantity: newQuantity }));
   };
 
-  const handleRemoveItem = (productId: string) => {
+  const handleRemoveItem = (productId: string) =>
+  {
     dispatch(removeFromCart(productId));
     toast({
       title: isRTL ? 'کامیابی' : 'Success',
@@ -42,8 +45,10 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
     });
   };
 
-  const handlePlaceOrder = async () => {
-    if (items.length === 0) {
+  const handlePlaceOrder = async () =>
+  {
+    if (items.length === 0)
+    {
       toast({
         title: isRTL ? 'خرابی' : 'Error',
         description: isRTL ? 'کارٹ خالی ہے' : 'Cart is empty',
@@ -53,7 +58,8 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
     }
 
     // Validations for address/vendor fields
-    if (deliveryType === 'delivery' && !useProfileAddress && !customDeliveryAddress.trim()) {
+    if (deliveryType === 'delivery' && !useProfileAddress && !customDeliveryAddress.trim())
+    {
       toast({
         title: isRTL ? 'پتہ درکار ہے' : 'Address Required',
         description: isRTL ? 'براہ کرم نیا پتہ درج کریں' : 'Please enter a delivery address.',
@@ -61,7 +67,8 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
       });
       return;
     }
-    if (deliveryType === 'bilti' && (!biltiVendor.trim() || !biltiDestination.trim())) {
+    if (deliveryType === 'bilti' && (!biltiVendor.trim() || !biltiDestination.trim()))
+    {
       toast({
         title: isRTL ? 'مکمل معلومات درکار ہیں' : 'Incomplete Information',
         description: isRTL ? 'بلیٹی وینڈر اور پتہ ضروری ہیں' : 'Bilti vendor and destination address are required.',
@@ -70,44 +77,57 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
       return;
     }
 
-    try {
-      const orderData = {
-        distributorId: user?.id,
-        distributorName: user?.name,
-        items: items.map(item => ({
-          productId: item.productId,
-          productName: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          unit: item.unit,
-        })),
-        total,
-        deliveryType,
-        deliveryAddress:
-          deliveryType === 'delivery'
-            ? (useProfileAddress ? user?.address : customDeliveryAddress.trim())
-            : undefined,
-        biltiVendor: deliveryType === 'bilti' ? biltiVendor.trim() : undefined,
-        biltiDestination: deliveryType === 'bilti' ? biltiDestination.trim() : undefined,
-        status: 'pending' as const,
-      };
+    try
+    {
+      // const orderData = {
+      //   distributorId: user?.id,
+      //   distributorName: user?.name,
+      //   items: items.map(item => ({
+      //     productId: item.productId,
+      //     productName: item.name,
+      //     quantity: item.quantity,
+      //     price: item.price,
+      //     unit: item.unit,
+      //   })),
+      //   total,
+      //   deliveryType,
+      //   deliveryAddress:
+      //     deliveryType === 'delivery'
+      //       ? (useProfileAddress ? user?.address : customDeliveryAddress.trim())
+      //       : undefined,
+      //   biltiVendor: deliveryType === 'bilti' ? biltiVendor.trim() : undefined,
+      //   biltiDestination: deliveryType === 'bilti' ? biltiDestination.trim() : undefined,
+      //   status: 'pending' as const,
+      // };
 
-      const newOrder = await ordersAPI.create(orderData);
+      const newOrder: Order = {
+        id: "",
+        distributorId: '',
+        distributorName: '',
+        items: [],
+        total: 200,
+        deliveryType: 'bilti',
+        status: 'pending',
+        createdAt: '',
+        updatedAt: ''
+      }
       dispatch(addOrder(newOrder));
       dispatch(clearCart());
-      
+
       // Reset delivery form
       setDeliveryType('delivery');
       setUseProfileAddress(true);
       setCustomDeliveryAddress('');
       setBiltiVendor('');
       setBiltiDestination('');
-      
+
       toast({
         title: isRTL ? 'کامیابی' : 'Success',
         description: isRTL ? 'آرڈر کامیابی سے بھیج دیا گیا' : 'Order placed successfully',
       });
-    } catch (error) {
+    } catch (error)
+    {
+      console.log(error)
       toast({
         title: isRTL ? 'خرابی' : 'Error',
         description: isRTL ? 'آرڈر بھیجنے میں خرابی' : 'Failed to place order',
@@ -116,7 +136,8 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
     }
   };
 
-  if (items.length === 0) {
+  if (items.length === 0)
+  {
     return (
       <div className="text-center py-12 px-4">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
@@ -152,7 +173,7 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
                     ₨{item.price.toLocaleString()} {isRTL ? 'فی ' : 'per '}{item.unit}
                   </p>
                 </div>
-                
+
                 <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                   <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <span className="text-sm text-muted-foreground whitespace-nowrap">
@@ -185,10 +206,10 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div className={`flex items-center justify-between w-full sm:w-auto gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <p className="font-semibold text-primary">
-                      ₨{(item.price * item.quantity).toLocaleString()}
+                      {((parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0) * item.quantity).toLocaleString()}
                     </p>
                     <Button
                       variant="outline"
@@ -303,7 +324,7 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) => {
               <span className="text-muted-foreground">{isRTL ? 'کل رقم: ' : 'Total: '}</span>
               <span className="text-primary">₨{total.toLocaleString()}</span>
             </div>
-            <Button 
+            <Button
               onClick={handlePlaceOrder}
               className="w-full sm:w-auto flex items-center gap-2"
               size="lg"

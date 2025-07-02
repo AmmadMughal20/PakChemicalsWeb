@@ -1,5 +1,3 @@
-// src/store/thunks/productsThunks.ts
-
 import { AppDispatch } from '../index';
 import
 {
@@ -18,9 +16,11 @@ export const fetchProducts = () => async (dispatch: AppDispatch) =>
 
         const data = await res.json();
         dispatch(setProducts(data));
-    } catch (error: any)
+    } catch (error: unknown)
     {
-        dispatch(setError(error.message || 'Something went wrong'));
+        const errorMessage =
+            error instanceof Error ? error.message : 'Something went wrong';
+        dispatch(setError(errorMessage));
     } finally
     {
         dispatch(setLoading(false));

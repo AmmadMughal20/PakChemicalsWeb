@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Mic, MicOff, Search, X } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface SearchWithVoiceProps {
+interface SearchWithVoiceProps
+{
   placeholder?: string;
   onSearch: (query: string) => void;
   className?: string;
@@ -17,79 +18,94 @@ export const SearchWithVoice: React.FC<SearchWithVoiceProps> = ({
   onSearch,
   className = '',
   isRTL = false,
-}) => {
+}) =>
+{
   const [searchQuery, setSearchQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     // Check if speech recognition is supported
-    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window))
+    {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognitionInstance = new SpeechRecognition();
-      
+
       recognitionInstance.continuous = false;
       recognitionInstance.interimResults = false;
       recognitionInstance.lang = isRTL ? 'ur-PK' : 'en-US';
 
-      recognitionInstance.onresult = (event) => {
+      recognitionInstance.onresult = (event) =>
+      {
         const transcript = event.results[0][0].transcript;
         setSearchQuery(transcript);
         onSearch(transcript);
         setIsListening(false);
-        
+
         toast.success(isRTL ? `آپ نے کہا: "${transcript}"` : `You said: "${transcript}"`);
       };
 
-      recognitionInstance.onerror = (event) => {
+      recognitionInstance.onerror = (event) =>
+      {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         toast.error(isRTL ? 'آواز کی پہچان میں خرابی' : 'Voice recognition failed');
       };
 
-      recognitionInstance.onend = () => {
+      recognitionInstance.onend = () =>
+      {
         setIsListening(false);
       };
 
       setRecognition(recognitionInstance);
     }
 
-    return () => {
-      if (timeoutRef.current) {
+    return () =>
+    {
+      if (timeoutRef.current)
+      {
         clearTimeout(timeoutRef.current);
       }
     };
   }, [isRTL, onSearch]);
 
-  const handleVoiceSearch = () => {
-    if (!recognition) {
+  const handleVoiceSearch = () =>
+  {
+    if (!recognition)
+    {
       toast.error(isRTL ? 'آواز کی پہچان دستیاب نہیں' : 'Voice recognition not supported');
       return;
     }
 
-    if (isListening) {
+    if (isListening)
+    {
       recognition.stop();
       setIsListening(false);
-    } else {
+    } else
+    {
       setIsListening(true);
       recognition.start();
-      
+
       // Auto-stop after 10 seconds
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = setTimeout(() =>
+      {
         recognition.stop();
         setIsListening(false);
       }, 10000);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  {
     const value = e.target.value;
     setSearchQuery(value);
     onSearch(value);
   };
 
-  const clearSearch = () => {
+  const clearSearch = () =>
+  {
     setSearchQuery('');
     onSearch('');
   };
@@ -117,7 +133,7 @@ export const SearchWithVoice: React.FC<SearchWithVoiceProps> = ({
           </Button>
         )}
       </div>
-      
+
       <Button
         variant={isListening ? "destructive" : "outline"}
         size="sm"
@@ -127,8 +143,8 @@ export const SearchWithVoice: React.FC<SearchWithVoiceProps> = ({
       >
         {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         <span className="hidden sm:inline">
-          {isListening 
-            ? (isRTL ? 'سن رہا ہے...' : 'Listening...') 
+          {isListening
+            ? (isRTL ? 'سن رہا ہے...' : 'Listening...')
             : (isRTL ? 'آواز' : 'Voice')
           }
         </span>

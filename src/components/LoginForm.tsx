@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice';
-import { authAPI } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 
 interface LoginFormProps

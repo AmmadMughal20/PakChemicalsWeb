@@ -37,8 +37,13 @@ export async function POST(req: NextRequest)
     {
         const product = await ProductModel.create(body);
         return NextResponse.json(product, { status: 201 });
-    } catch (err: any)
+    } catch (err: unknown)
     {
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        // fallback for non-Error objects
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }

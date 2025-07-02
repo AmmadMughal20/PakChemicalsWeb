@@ -23,7 +23,7 @@ export function middleware(req: NextRequest)
         return NextResponse.next(); // ✅ Allow if not protected
     }
 
-    const [matchedPath, allowedRoles] = matched;
+    const [allowedRoles] = matched;
 
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.split(' ')[1];
@@ -56,6 +56,6 @@ export function middleware(req: NextRequest)
         return NextResponse.next({ request: { headers: requestHeaders } });
     } catch (err)
     {
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        return NextResponse.json({ error: err, message: 'Invalid token' }, { status: 401 });
     }
 }

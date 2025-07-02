@@ -56,7 +56,7 @@ const UserSchema: Schema<User> = new Schema({
 }, { timestamps: true })
 
 UserSchema.set('toJSON', {
-    transform: function (doc, ret, options)
+    transform: function (doc, ret)
     {
         delete ret.password;
         return ret;
@@ -64,7 +64,7 @@ UserSchema.set('toJSON', {
 });
 
 UserSchema.set('toObject', {
-    transform: function (doc, ret, options)
+    transform: function (doc, ret)
     {
         delete ret.password;
         return ret;

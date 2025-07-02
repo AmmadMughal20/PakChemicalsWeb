@@ -1,32 +1,36 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { updateOrderStatus, updateOrderDeliveryType } from '@/store/slices/ordersSlice';
-import { ordersAPI } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
-import { Order } from '@/store/slices/ordersSlice';
+import { ordersAPI } from '@/services/api';
+import { RootState } from '@/store';
+import { Order, updateOrderDeliveryType, updateOrderStatus } from '@/store/slices/ordersSlice';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-interface OrdersManagerProps {
+interface OrdersManagerProps
+{
   isRTL: boolean;
 }
 
-const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) => {
+const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) =>
+{
   const dispatch = useDispatch();
   const { orders } = useSelector((state: RootState) => state.orders);
 
-  const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
-    try {
+  const handleStatusChange = async (orderId: string, newStatus: Order['status']) =>
+  {
+    try
+    {
       await ordersAPI.updateStatus(orderId, newStatus);
       dispatch(updateOrderStatus({ orderId, status: newStatus }));
       toast({
         title: isRTL ? 'کامیابی' : 'Success',
         description: isRTL ? 'آرڈر کی حالت تبدیل ہو گئی' : 'Order status updated successfully',
       });
-    } catch (error) {
+    } catch (error)
+    {
+      console.log(error)
       toast({
         title: isRTL ? 'خرابی' : 'Error',
         description: isRTL ? 'آرڈر کی حالت تبدیل کرنے میں خرابی' : 'Failed to update order status',
@@ -35,15 +39,19 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) => {
     }
   };
 
-  const handleDeliveryTypeChange = async (orderId: string, newType: 'bilti' | 'delivery') => {
-    try {
+  const handleDeliveryTypeChange = async (orderId: string, newType: 'bilti' | 'delivery') =>
+  {
+    try
+    {
       await ordersAPI.updateDeliveryType(orderId, newType);
       dispatch(updateOrderDeliveryType({ orderId, deliveryType: newType }));
       toast({
         title: isRTL ? 'کامیابی' : 'Success',
         description: isRTL ? 'ڈیلیوری ٹائپ تبدیل ہو گئی' : 'Delivery type updated',
       });
-    } catch (error) {
+    } catch (error)
+    {
+      console.log(error)
       toast({
         title: isRTL ? 'خرابی' : 'Error',
         description: isRTL ? 'ڈیلیوری ٹائپ تبدیل نہیں ہو سکی' : 'Failed to change delivery type',
@@ -52,8 +60,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) => {
     }
   };
 
-  const getStatusBadgeVariant = (status: Order['status']) => {
-    switch (status) {
+  const getStatusBadgeVariant = (status: Order['status']) =>
+  {
+    switch (status)
+    {
       case 'pending': return 'secondary';
       case 'confirmed': return 'default';
       case 'shipped': return 'outline';
@@ -63,9 +73,12 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) => {
     }
   };
 
-  const getStatusText = (status: Order['status']) => {
-    if (isRTL) {
-      switch (status) {
+  const getStatusText = (status: Order['status']) =>
+  {
+    if (isRTL)
+    {
+      switch (status)
+      {
         case 'pending': return 'زیر التواء';
         case 'confirmed': return 'تصدیق شدہ';
         case 'shipped': return 'روانہ';
@@ -123,8 +136,8 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ isRTL }) => {
                     </SelectContent>
                   </Select>
                   {/* Status select (already present) */}
-                  <Select 
-                    value={order.status} 
+                  <Select
+                    value={order.status}
                     onValueChange={(value: Order['status']) => handleStatusChange(order.id, value)}
                   >
                     <SelectTrigger className="w-[140px] bg-purple-100 text-purple-700 border-purple-300">

@@ -1,20 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
-import { setProducts } from '@/store/slices/productsSlice';
-import { setDistributors } from '@/store/slices/distributorsSlice';
-import { setOrders } from '@/store/slices/ordersSlice';
-import { productsAPI, distributorsAPI, ordersAPI } from '@/services/api';
-import ProductsManager from './admin/ProductsManager';
+import { fetchProducts } from '@/store/thunks/productThunks';
+import { LogOut, Package, ShoppingCart, Users } from 'lucide-react';
+import React, { useEffect } from 'react';
 import DistributorsManager from './admin/DistributorsManager';
 import OrdersManager from './admin/OrdersManager';
-import { LogOut, Package, Users, ShoppingCart } from 'lucide-react';
-import { fetchProducts } from '@/store/thunks/productThunks';
+import ProductsManager from './admin/ProductsManager';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 interface AdminDashboardProps
 {
@@ -24,17 +20,16 @@ interface AdminDashboardProps
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ isRTL, toggleRTL }) =>
 {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state: RootState) => state.auth);
-  // const { products } = useSelector((state: RootState) => state.products);
-  const { distributors } = useSelector((state: RootState) => state.distributors);
-  const { orders } = useSelector((state: RootState) => state.orders);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state: RootState) => state.auth);
+  const { distributors } = useAppSelector((state: RootState) => state.distributors);
+  const { orders } = useAppSelector((state: RootState) => state.orders);
 
-  const { products, loading, error } = useSelector((state: RootState) => state.products);
+  const { products } = useAppSelector((state: RootState) => state.products);
 
   useEffect(() =>
   {
-    dispatch(fetchProducts() as any);
+    dispatch(fetchProducts());
   }, [dispatch]);
 
   // useEffect(() =>
@@ -160,7 +155,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ isRTL, toggleRTL }) =>
           </TabsList>
 
           <TabsContent value="products" className="space-y-4">
-            <ProductsManager isRTL={isRTL} />
+            <ProductsManager />
           </TabsContent>
 
           <TabsContent value="distributors" className="space-y-4">

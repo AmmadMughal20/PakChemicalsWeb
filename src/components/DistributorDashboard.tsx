@@ -1,21 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { logout } from '@/store/slices/authSlice';
-import { setProducts } from '@/store/slices/productsSlice';
-import { setOrders } from '@/store/slices/ordersSlice';
-import { productsAPI, ordersAPI } from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import ProductsList from './distributor/ProductsList';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RootState } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from '@/store/slices/authSlice';
+import { History, LogOut, Menu, Package, ShoppingCart, User, X } from 'lucide-react';
+import React, { useState } from 'react';
 import CartView from './distributor/CartView';
 import OrdersHistory from './distributor/OrdersHistory';
+import ProductsList from './distributor/ProductsList';
 import ProfileManager from './distributor/ProfileManager';
-import { LogOut, Package, ShoppingCart, History, User, Menu, X } from 'lucide-react';
 
 interface DistributorDashboardProps
 {
@@ -25,39 +22,46 @@ interface DistributorDashboardProps
 
 const DistributorDashboard: React.FC<DistributorDashboardProps> = ({ isRTL, toggleRTL }) =>
 {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { items } = useSelector((state: RootState) => state.cart);
-  const { orders } = useSelector((state: RootState) => state.orders);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state: RootState) => state.auth);
+  const { items } = useAppSelector((state: RootState) => state.cart);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() =>
-  {
-    loadData();
-  }, []);
+  // const loadData = async () =>
+  // {
+  //   try
+  //   {
+  //     const [productsData, ordersData] = await Promise.all([
+  //       productsAPI.getAll(),
+  //       ordersAPI.getAll(),
+  //     ]);
 
-  const loadData = async () =>
-  {
-    try
-    {
-      const [productsData, ordersData] = await Promise.all([
-        productsAPI.getAll(),
-        ordersAPI.getAll(),
-      ]);
+  //     dispatch(setProducts(productsData));
 
-      dispatch(setProducts(productsData));
-      const userOrders = ordersData
-        .filter(order => order.distributorId === user?.id)
-        .map((order: any) => ({
-          ...order,
-          deliveryType: order.deliveryType as 'bilti' | 'delivery',
-        }));
-      dispatch(setOrders(userOrders));
-    } catch (error)
-    {
-      console.error('Error loading data:', error);
-    }
-  };
+  //     const userOrders = ordersData
+  //       .filter(order => order.distributorId === user?.id)
+  //       .map((order: OrderItem) => ({
+  //         ...order,
+  //         deliveryType: order.deliveryType as 'bilti' | 'delivery',
+  //       }));
+
+  //     dispatch(setOrders(userOrders));
+  //   } catch (error: unknown)
+  //   {
+  //     if (error instanceof Error)
+  //     {
+  //       console.error('Error loading data:', error.message);
+  //     } else
+  //     {
+  //       console.error('Unknown error loading data:', error);
+  //     }
+  //   }
+  // };
+
+  // useEffect(() =>
+  // {
+  //   loadData();
+  // }, []);
 
   const handleLogout = () =>
   {

@@ -1,12 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import
-{
-  addProduct,
-  updateProduct,
-  deleteProduct,
-} from '@/store/slices/productsSlice';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import
 {
@@ -15,14 +7,23 @@ import
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { SearchWithVoice } from '@/components/ui/search-with-voice';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Image } from 'lucide-react';
+import { RootState } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import
+{
+  deleteProduct,
+  Product,
+  updateProduct
+} from '@/store/slices/productsSlice';
 import { fetchProducts } from '@/store/thunks/productThunks';
+import { Edit, Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const demoImages = [
   '/placeholder.svg?height=200&width=200',
@@ -33,8 +34,8 @@ const demoImages = [
 
 const ProductsManager = () =>
 {
-  const dispatch = useDispatch();
-  const { products } = useSelector((state: RootState) => state.products);
+  const dispatch = useAppDispatch();
+  const { products } = useAppSelector((state: RootState) => state.products);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
@@ -89,7 +90,7 @@ const ProductsManager = () =>
       // Step 1: Get signature
       const res = await fetch('/api/cloudinary-signature', { method: 'POST' });
 
-      const { signature, timestamp, apiKey, cloudName, uploadPreset } = await res.json();
+      const { signature, timestamp, apiKey, cloudName } = await res.json();
 
       // Step 2: Upload to Cloudinary
       const form = new FormData();
@@ -115,10 +116,15 @@ const ProductsManager = () =>
       {
         throw new Error(data.error?.message || 'Upload failed');
       }
-    } catch (err: any)
+    } catch (error: unknown)
     {
-      console.error(err);
-      toast({ title: 'Upload Error', description: err.message, variant: 'destructive' });
+      if (error instanceof Error)
+      {
+        console.error('Error loading data:', error.message);
+      } else
+      {
+        console.error('Unknown error loading data:', error);
+      }
     }
   };
 
@@ -150,7 +156,7 @@ const ProductsManager = () =>
     {
       if (editingProductId)
       {
-        await dispatch(updateProduct({ id: editingProductId, product: data })).unwrap();
+        await dispatch(updateProduct({ _id: editingProductId, ...data }));
         toast({ title: 'Updated', description: 'Product updated successfully.' });
       } else
       {
@@ -174,11 +180,19 @@ const ProductsManager = () =>
 
       setIsDialogOpen(false);
       setEditingProductId(null);
-    } catch (error: any)
+    } catch (error: unknown)
     {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    }
-  };
+      if (error instanceof Error)
+      {
+        {
+          toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+      } else
+      {
+        console.log(error)
+      }
+    };
+  }
 
   const handleDelete = async (id: string) =>
   {
@@ -186,7 +200,7 @@ const ProductsManager = () =>
     {
       try
       {
-        await dispatch(deleteProduct(id)).unwrap();
+        await dispatch(deleteProduct(id))
         toast({ title: 'Deleted', description: 'Product deleted successfully.' });
       } catch
       {
@@ -195,7 +209,7 @@ const ProductsManager = () =>
     }
   };
 
-  const handleEdit = (product: any) =>
+  const handleEdit = (product: Product) =>
   {
     setEditingProductId(product._id);
     setFormData({
@@ -247,7 +261,7 @@ const ProductsManager = () =>
               </div>
             </CardHeader>
             <CardContent>
-              <img
+              <Image
                 src={product.image_link}
                 alt={product.title_english}
                 className="w-full h-32 object-cover rounded mb-2"
@@ -342,7 +356,7 @@ const ProductsManager = () =>
               <Label htmlFor="image_upload">Upload Image</Label>
               <Input type="file" id="image_upload" ref={fileInputRef} onChange={handleImageUpload} />
               {formData.image && (
-                <img src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded border" />
+                <Image src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded border" />
               )}
             </div>
 

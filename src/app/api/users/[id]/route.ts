@@ -4,23 +4,17 @@ import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 import bcrypt from 'bcryptjs';
 
-interface Params
+export async function GET(req: NextRequest)
 {
-    params: { id: string };
-}
-
-export async function GET(_: NextRequest, context: { params: { id: string } })
-{
-    const { params } = context;
-    const userId = params.id;
+    const searchParams = req.nextUrl.searchParams;
+    const userId = searchParams.get('id');
 
     await dbConnect();
 
-    // ✅ Check for valid MongoDB ObjectId
-    if (!isValidObjectId(userId))
+    if (!userId || !isValidObjectId(userId))
     {
         return NextResponse.json(
-            { error: 'Invalid user ID format' },
+            { error: 'Invalid or missing user ID' },
             { status: 400 }
         );
     }
@@ -38,22 +32,24 @@ export async function GET(_: NextRequest, context: { params: { id: string } })
         }
 
         return NextResponse.json(user);
-    } catch (error: any)
+    } catch (err: unknown)
     {
-        return NextResponse.json(
-            { error: error.message || 'Server error' },
-            { status: 500 }
-        );
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }
 
-
-// PUT /api/users/:id
-export async function PUT(req: NextRequest, { params }: Params)
+// PUT /api/users?id=
+export async function PUT(req: NextRequest)
 {
+    const searchParams = req.nextUrl.searchParams;
+    const userId = searchParams.get('id');
+
     await dbConnect();
 
-    const userId = params.id;
 
     // ✅ Check for valid ObjectId
     if (!isValidObjectId(userId))
@@ -116,18 +112,25 @@ export async function PUT(req: NextRequest, { params }: Params)
         }
 
         return NextResponse.json(updatedUser);
-    } catch (err: any)
+    } catch (err: unknown)
     {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        // fallback for non-Error objects
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }
 
-// DELETE /api/users/:id
-export async function DELETE(_: NextRequest, { params }: Params)
+// DELETE /api/users?id=
+export async function DELETE(req: NextRequest)
 {
+    const searchParams = req.nextUrl.searchParams;
+    const userId = searchParams.get('id');
+
     await dbConnect();
 
-    const userId = params.id;
 
     // ✅ Validate MongoDB ObjectId format
     if (!isValidObjectId(userId))
@@ -148,12 +151,14 @@ export async function DELETE(_: NextRequest, { params }: Params)
         }
 
         return NextResponse.json({ message: 'User deleted successfully' });
-    } catch (error: any)
+    } catch (err: unknown)
     {
-        return NextResponse.json(
-            { error: error.message || 'Failed to delete user' },
-            { status: 500 }
-        );
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        // fallback for non-Error objects
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }
 

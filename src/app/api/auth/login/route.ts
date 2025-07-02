@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 import bcrypt from 'bcryptjs';
@@ -51,7 +51,7 @@ export async function POST(req: Request)
     }
 
     const jwtPayload = {
-        id: user._id.toString(),
+        id: user.id.toString(),
         name: user.name,
         phone: user.phone,
         role: user.role,

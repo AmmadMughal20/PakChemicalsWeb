@@ -48,9 +48,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         return NextResponse.json(updated);
-    } catch (err: any)
+    } catch (err: unknown)
     {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        if (err instanceof Error)
+        {
+            return NextResponse.json({ error: err.message }, { status: 400 });
+        }
+        // fallback for non-Error objects
+        return NextResponse.json({ error: 'An unknown error occurred' }, { status: 400 });
     }
 }
 

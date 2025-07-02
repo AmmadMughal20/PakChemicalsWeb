@@ -1,16 +1,18 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface CartItem {
+interface CartItem
+{
   id: string;
   productId: string;
   name: string;
-  price: number;
+  price: string;
   quantity: number;
   unit: string;
 }
 
-interface CartState {
+interface CartState
+{
   items: CartItem[];
   total: number;
 }
@@ -24,27 +26,46 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<CartItem>) => {
+    addToCart: (state, action: PayloadAction<CartItem>) =>
+    {
       const existingItem = state.items.find(item => item.productId === action.payload.productId);
-      if (existingItem) {
+      if (existingItem)
+      {
         existingItem.quantity += action.payload.quantity;
-      } else {
+      } else
+      {
         state.items.push(action.payload);
       }
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) =>
+      {
+        const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+        return sum + (numericPrice * item.quantity);
+      }, 0);
     },
-    updateQuantity: (state, action: PayloadAction<{ productId: string; quantity: number }>) => {
+    updateQuantity: (state, action: PayloadAction<{ productId: string; quantity: number }>) =>
+    {
       const item = state.items.find(item => item.productId === action.payload.productId);
-      if (item) {
+      if (item)
+      {
         item.quantity = action.payload.quantity;
       }
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) =>
+      {
+        const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+        return sum + (numericPrice * item.quantity);
+      }, 0);
     },
-    removeFromCart: (state, action: PayloadAction<string>) => {
+    removeFromCart: (state, action: PayloadAction<string>) =>
+    {
       state.items = state.items.filter(item => item.productId !== action.payload);
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) =>
+      {
+        const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+        return sum + (numericPrice * item.quantity);
+      }, 0);
     },
-    clearCart: (state) => {
+    clearCart: (state) =>
+    {
       state.items = [];
       state.total = 0;
     },

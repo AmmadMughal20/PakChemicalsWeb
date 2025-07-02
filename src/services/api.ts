@@ -1,6 +1,6 @@
-
-// Mock API service - replace with actual backend endpoints
-const API_BASE_URL = '/api';
+import { Product } from "@/models/Product";
+import { Distributor } from "@/store/slices/distributorsSlice";
+import { Order } from "@/store/slices/ordersSlice";
 
 // Simulated delay for demo purposes
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,7 +22,7 @@ export const authAPI = {
 
     if (user)
     {
-      const { password: _, ...userWithoutPassword } = user;
+      const { ...userWithoutPassword } = user;
       return { success: true, user: userWithoutPassword };
     }
 
@@ -69,13 +69,13 @@ export const productsAPI = {
     ];
   },
 
-  create: async (product: any) =>
+  create: async (product: Product) =>
   {
     await delay(500);
     return { ...product, id: Date.now().toString() };
   },
 
-  update: async (id: string, product: any) =>
+  update: async (id: string, product: Product) =>
   {
     await delay(500);
     return { ...product, id };
@@ -83,6 +83,7 @@ export const productsAPI = {
 
   delete: async (id: string) =>
   {
+    console.log(id)
     await delay(500);
     return { success: true };
   },
@@ -115,13 +116,13 @@ export const distributorsAPI = {
     ];
   },
 
-  create: async (distributor: any) =>
+  create: async (distributor: Distributor) =>
   {
     await delay(500);
     return { ...distributor, id: Date.now().toString(), createdAt: new Date().toISOString() };
   },
 
-  update: async (id: string, distributor: any) =>
+  update: async (id: string, distributor: Distributor) =>
   {
     await delay(500);
     return { ...distributor, id };
@@ -129,6 +130,7 @@ export const distributorsAPI = {
 
   delete: async (id: string) =>
   {
+    console.log(id)
     await delay(500);
     return { success: true };
   },
@@ -157,7 +159,7 @@ export const ordersAPI = {
     ];
   },
 
-  create: async (order: any) =>
+  create: async (order: Order) =>
   {
     await delay(500);
     return {
@@ -170,12 +172,14 @@ export const ordersAPI = {
 
   updateStatus: async (id: string, status: string) =>
   {
+    console.log(id, ' ', status)
     await delay(500);
     return { success: true };
   },
 
   updateDeliveryType: async (id: string, deliveryType: string) =>
   {
+    console.log(id, ' ', deliveryType)
     await delay(500);
     return { success: true };
   }

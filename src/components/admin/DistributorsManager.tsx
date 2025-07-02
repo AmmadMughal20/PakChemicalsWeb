@@ -1,18 +1,15 @@
 
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { addDistributor, updateDistributor, deleteDistributor } from '@/store/slices/distributorsSlice';
-import { distributorsAPI } from '@/services/api';
-import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Phone, MapPin } from 'lucide-react';
+import { RootState } from '@/store';
+import { useAppSelector } from '@/store/hooks';
 import { Distributor } from '@/store/slices/distributorsSlice';
+import { Edit, MapPin, Phone, Plus, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface DistributorsManagerProps
 {
@@ -21,11 +18,11 @@ interface DistributorsManagerProps
 
 const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
 {
-  const dispatch = useDispatch();
-  const { distributors } = useSelector((state: RootState) => state.distributors);
+  const { distributors } = useAppSelector((state: RootState) => state.distributors);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null);
+  // const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null);
+  const editingDistributor: Distributor | null = null;
   const [formData, setFormData] = useState({
     phone: '',
     name: '',
@@ -35,100 +32,102 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
     password: '',
   });
 
-  const handleOpenDialog = (distributor?: Distributor) =>
-  {
-    if (distributor)
-    {
-      setEditingDistributor(distributor);
-      setFormData({
-        phone: distributor.phone,
-        name: distributor.name,
-        businessName: distributor.businessName,
-        address: distributor.address,
-        city: (distributor as any).city ?? '', // fallback if city doesn't exist yet
-        password: '',
-      });
-    } else
-    {
-      setEditingDistributor(null);
-      setFormData({
-        phone: '',
-        name: '',
-        businessName: '',
-        address: '',
-        city: '',
-        password: '',
-      });
-    }
-    setIsDialogOpen(true);
-  };
+  // const handleOpenDialog = (distributor?: Distributor) =>
+  // {
+  //   if (distributor)
+  //   {
+  //     setEditingDistributor(distributor);
+  //     setFormData({
+  //       phone: distributor.phone,
+  //       name: distributor.name,
+  //       businessName: distributor.businessName,
+  //       address: distributor.address,
+  //       city: (distributor as Distributor).city ?? '', // fallback if city doesn't exist yet
+  //       password: '',
+  //     });
+  //   } else
+  //   {
+  //     setEditingDistributor(null);
+  //     setFormData({
+  //       phone: '',
+  //       name: '',
+  //       businessName: '',
+  //       address: '',
+  //       city: '',
+  //       password: '',
+  //     });
+  //   }
+  //   setIsDialogOpen(true);
+  // };
 
-  const handleSubmit = async (e: React.FormEvent) =>
-  {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent) =>
+  // {
+  //   e.preventDefault();
 
-    try
-    {
-      const distributorData = {
-        phone: formData.phone,
-        name: formData.name,
-        businessName: formData.businessName,
-        address: formData.address,
-        city: formData.city,
-        isActive: true,
-      };
+  //   try
+  //   {
+  //     const distributorData = {
+  //       phone: formData.phone,
+  //       name: formData.name,
+  //       businessName: formData.businessName,
+  //       address: formData.address,
+  //       city: formData.city,
+  //       isActive: true,
+  //     };
 
-      if (editingDistributor)
-      {
-        const updatedDistributor = await distributorsAPI.update(editingDistributor.id, distributorData);
-        dispatch(updateDistributor({ ...updatedDistributor, id: editingDistributor.id }));
-        toast({
-          title: isRTL ? 'کامیابی' : 'Success',
-          description: isRTL ? 'ڈسٹری بیوٹر اپڈیٹ ہو گیا' : 'Distributor updated successfully',
-        });
-      } else
-      {
-        const newDistributor = await distributorsAPI.create(distributorData);
-        dispatch(addDistributor(newDistributor));
-        toast({
-          title: isRTL ? 'کامیابی' : 'Success',
-          description: isRTL ? 'نیا ڈسٹری بیوٹر شامل ہو گیا' : 'New distributor added successfully',
-        });
-      }
+  //     if (editingDistributor)
+  //     {
+  //       const updatedDistributor = await distributorsAPI.update(editingDistributor.id, distributorData);
+  //       dispatch(updateDistributor({ ...updatedDistributor, id: editingDistributor.id }));
+  //       toast({
+  //         title: isRTL ? 'کامیابی' : 'Success',
+  //         description: isRTL ? 'ڈسٹری بیوٹر اپڈیٹ ہو گیا' : 'Distributor updated successfully',
+  //       });
+  //     } else
+  //     {
+  //       const newDistributor = await distributorsAPI.create(distributorData);
+  //       dispatch(addDistributor(newDistributor));
+  //       toast({
+  //         title: isRTL ? 'کامیابی' : 'Success',
+  //         description: isRTL ? 'نیا ڈسٹری بیوٹر شامل ہو گیا' : 'New distributor added successfully',
+  //       });
+  //     }
 
-      setIsDialogOpen(false);
-    } catch (error)
-    {
-      toast({
-        title: isRTL ? 'خرابی' : 'Error',
-        description: isRTL ? 'ڈسٹری بیوٹر محفوظ کرنے میں خرابی' : 'Failed to save distributor',
-        variant: 'destructive',
-      });
-    }
-  };
+  //     setIsDialogOpen(false);
+  //   } catch (error)
+  //   {
+  //     console.log(error)
+  //     toast({
+  //       title: isRTL ? 'خرابی' : 'Error',
+  //       description: isRTL ? 'ڈسٹری بیوٹر محفوظ کرنے میں خرابی' : 'Failed to save distributor',
+  //       variant: 'destructive',
+  //     });
+  //   }
+  // };
 
-  const handleDelete = async (id: string) =>
-  {
-    if (window.confirm(isRTL ? 'کیا آپ واقعی اس ڈسٹری بیوٹر کو ڈیلیٹ کرنا چاہتے ہیں؟' : 'Are you sure you want to delete this distributor?'))
-    {
-      try
-      {
-        await distributorsAPI.delete(id);
-        dispatch(deleteDistributor(id));
-        toast({
-          title: isRTL ? 'کامیابی' : 'Success',
-          description: isRTL ? 'ڈسٹری بیوٹر ڈیلیٹ ہو گیا' : 'Distributor deleted successfully',
-        });
-      } catch (error)
-      {
-        toast({
-          title: isRTL ? 'خرابی' : 'Error',
-          description: isRTL ? 'ڈسٹری بیوٹر ڈیلیٹ کرنے میں خرابی' : 'Failed to delete distributor',
-          variant: 'destructive',
-        });
-      }
-    }
-  };
+  // const handleDelete = async (id: string) =>
+  // {
+  //   if (window.confirm(isRTL ? 'کیا آپ واقعی اس ڈسٹری بیوٹر کو ڈیلیٹ کرنا چاہتے ہیں؟' : 'Are you sure you want to delete this distributor?'))
+  //   {
+  //     try
+  //     {
+  //       await distributorsAPI.delete(id);
+  //       dispatch(deleteDistributor(id));
+  //       toast({
+  //         title: isRTL ? 'کامیابی' : 'Success',
+  //         description: isRTL ? 'ڈسٹری بیوٹر ڈیلیٹ ہو گیا' : 'Distributor deleted successfully',
+  //       });
+  //     } catch (error)
+  //     {
+  //       console.log(error)
+  //       toast({
+  //         title: isRTL ? 'خرابی' : 'Error',
+  //         description: isRTL ? 'ڈسٹری بیوٹر ڈیلیٹ کرنے میں خرابی' : 'Failed to delete distributor',
+  //         variant: 'destructive',
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -138,7 +137,9 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
         </h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()}>
+            <Button
+            // onClick={() => handleOpenDialog()}
+            >
               <Plus className="h-4 w-4 mr-2" />
               {isRTL ? 'نیا ڈسٹری بیوٹر' : 'Add Distributor'}
             </Button>
@@ -149,7 +150,9 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
                 {editingDistributor ? (isRTL ? 'ڈسٹری بیوٹر تبدیل کریں' : 'Edit Distributor') : (isRTL ? 'نیا ڈسٹری بیوٹر شامل کریں' : 'Add New Distributor')}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              // onSubmit={handleSubmit}
+              className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className={`${isRTL ? 'text-right block' : ''}`}>
                   {isRTL ? 'نام' : 'Name'}
@@ -245,10 +248,14 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
                   {distributor.name}
                 </CardTitle>
                 <div className={`flex space-x-2 ${isRTL ? 'space-x-reverse' : ''}`}>
-                  <Button variant="outline" size="sm" onClick={() => handleOpenDialog(distributor)}>
+                  <Button variant="outline" size="sm"
+                  // onClick={() => handleOpenDialog(distributor)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDelete(distributor.id)}>
+                  <Button variant="outline" size="sm"
+                  // onClick={() => handleDelete(distributor.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -265,7 +272,7 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
                 </div>
                 <div className={`flex items-center text-sm text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <span className="font-semibold mr-1">{isRTL ? 'شہر:' : 'City:'}</span>
-                  <span>{(distributor as any).city ?? '-'}</span>
+                  <span>{(distributor as Distributor).city ?? '-'}</span>
                 </div>
                 <div className={`flex items-start text-sm text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <MapPin className="h-4 w-4 mr-1 mt-0.5" />
