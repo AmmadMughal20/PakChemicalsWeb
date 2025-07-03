@@ -8,10 +8,7 @@ export async function POST(req: Request)
 {
     await dbConnect();
 
-    // 🧪 Get raw body text
     const rawBody = await req.text();
-    console.log(rawBody, 'printing raw body')
-
     if (!rawBody)
     {
         return NextResponse.json({ error: 'Request body is missing' }, { status: 400 });
@@ -29,7 +26,6 @@ export async function POST(req: Request)
 
     const { phone, password } = body;
 
-    // ✅ Validate presence before using fields
     if (!phone || !password)
     {
         return NextResponse.json(
@@ -54,18 +50,27 @@ export async function POST(req: Request)
         id: user.id.toString(),
         name: user.name,
         phone: user.phone,
-        email: user.email,
+        // email: user.email,
         address: user.address,
         role: user.role,
     };
 
-    const jwtToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, {
-        expiresIn: '7d',
+    const accessToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, {
+        expiresIn: '7d', // short-lived
     });
+
+    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET as string, {
+        expiresIn: '30d', // long-lived
+    });
+
+    // Optional: save refreshToken in DB or Redis
+    user.refreshToken = refreshToken;
+    await user.save();
 
     return NextResponse.json({
         message: 'Login successful',
         user: jwtPayload,
-        token: jwtToken,
+        token: accessToken,
+        refreshToken,
     });
 }

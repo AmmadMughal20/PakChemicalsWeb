@@ -10,7 +10,8 @@ export interface User extends Document
     password: string
     address?: string
     role: UserRole
-    joingingDate: Date
+    joingingDate: Date,
+    refreshToken: string
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -21,20 +22,30 @@ const UserSchema: Schema<User> = new Schema({
     },
     email: {
         type: String,
-        unique: [true, 'Email already taken'],
-        sparse: true, // Optional field but still unique
+        sparse: true,
         match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Enter valid email'],
-        validate: {
-            validator: function (this: User, value: string): boolean
+        validate: [
+            // {
+            //     validator: function (this: User, value: string)
+            //     {
+            //         if (this.role === 'admin' && !value)
+            //         {
+            //             return false;
+            //         }
+            //         return true;
+            //     },
+            //     message: 'Email is required for admin users'
+            // },
             {
-                if (this.role === 'admin' && !value)
+                validator: async function (this: User, value: string)
                 {
-                    return false;
-                }
-                return true;
-            },
-            message: 'Email is required for admin users'
-        }
+                    if (!value) return true; // allow empty (sparse behavior)
+                    const existingUser = await mongoose.models.User.findOne({ email: value });
+                    return !existingUser || existingUser._id.equals(this._id);
+                },
+                message: 'Email already taken'
+            }
+        ]
     },
     phone: {
         type: String,
@@ -53,6 +64,7 @@ const UserSchema: Schema<User> = new Schema({
     },
     role: { type: String, enum: ['admin', 'distributor'], default: 'distributor' },
     joingingDate: { type: Date, default: Date.now },
+    refreshToken: { type: String }
 }, { timestamps: true })
 
 UserSchema.set('toJSON', {

@@ -15,8 +15,9 @@ interface UserPost
     address?: string;
 }
 // GET /api/users
-export async function GET()
+export async function GET(req: NextRequest)
 {
+    void req
     await dbConnect();
     const users = await UserModel.find();
     return NextResponse.json(users);

@@ -17,7 +17,7 @@ export async function POST(req: Request)
 {
     try
     {
-        const authHeader = req.headers.get('authorization');
+        const authHeader = req.headers.get('token');
 
         if (!authHeader || !authHeader.startsWith('Bearer '))
         {
