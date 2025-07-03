@@ -54,6 +54,8 @@ export async function POST(req: Request)
         id: user.id.toString(),
         name: user.name,
         phone: user.phone,
+        email: user.email,
+        address: user.address,
         role: user.role,
     };
 
@@ -67,5 +69,3 @@ export async function POST(req: Request)
         token: jwtToken,
     });
 }
-
-

@@ -1,3 +1,4 @@
+// ✅ order.model.ts
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface CustomerInfo
@@ -9,7 +10,7 @@ export interface CustomerInfo
 
 export interface CartItem
 {
-    id: string;
+    productCode: string; // changed from `id` to match frontend
     title: string;
     price: string;
     quantity: number;
@@ -24,20 +25,20 @@ export interface OrderDocument extends Document
     items: CartItem[];
     total: number;
     timestamp: string;
-    user: Types.ObjectId; // ✅ Strongly typed reference to User
-    status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'; // ✅ Add this line
+    user: Types.ObjectId;
+    status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
 }
 
 const CartItemSchema = new Schema<CartItem>(
     {
-        id: { type: String, required: true },
+        productCode: { type: String, required: true },
         title: { type: String, required: true },
         price: { type: String, required: true },
         quantity: { type: Number, required: true },
-        unit: { type: String },
-        image_link: { type: String },
+        unit: String,
+        image_link: String,
     },
-    { _id: false } // Prevents Mongoose from adding _id to each cart item
+    { _id: false }
 );
 
 const CustomerSchema = new Schema<CustomerInfo>(
@@ -46,7 +47,7 @@ const CustomerSchema = new Schema<CustomerInfo>(
         phone: {
             type: String,
             required: true,
-            match: [/^(?:\+92|0)3[0-9]{9}$/, 'Enter a valid Pakistani phone number']
+            match: [/^(?:\+92|0)3[0-9]{9}$/, 'Enter a valid Pakistani phone number'],
         },
         address: { type: String, required: true },
     },
@@ -64,15 +65,14 @@ const OrderSchema = new Schema<OrderDocument>(
         status: {
             type: String,
             enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-            default: 'pending', // ✅ New orders default to pending
-            required: true
-        }
+            default: 'pending',
+        },
     },
     { timestamps: true }
 );
 
 const OrderModel =
-    (mongoose.models?.Order as mongoose.Model<OrderDocument>) ||
+    (mongoose.models.Order as mongoose.Model<OrderDocument>) ||
     mongoose.model<OrderDocument>('Order', OrderSchema);
 
 export default OrderModel;
