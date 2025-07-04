@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/dbConnect';
 import OrderModel from '@/models/Order';
+import { sendOrderEmail } from '@/lib/mail';
 
 export interface JwtPayload
 {
@@ -13,6 +14,11 @@ export interface JwtPayload
     role?: string;
 }
 
+interface cartItem
+{
+    title: string,
+    quantity: number
+}
 export async function POST(req: Request)
 {
     try
@@ -51,6 +57,27 @@ export async function POST(req: Request)
             timestamp: date,
             orderType,
             user: decoded.id,
+        });
+
+
+        const emailHtml = `
+            <h2>New Order Placed</h2>
+            <p><strong>Customer Name:</strong> ${customer.name}</p>
+            <p><strong>Phone:</strong> ${customer.phone}</p>
+            <p><strong>Address:</strong> ${customer.address}</p>
+            <p><strong>Total:</strong> PKR ${total}</p>
+            <p><strong>Order Type:</strong> ${orderType}</p>
+            <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
+            <h3>Items:</h3>
+            <ul>
+                ${products.map((item: cartItem) => `<li>${item.title} x ${item.quantity}</li>`).join('')}
+            </ul>
+        `;
+
+        await sendOrderEmail({
+            to: decoded.email || 'maqsood0567@gmail.com',
+            subject: 'New Order Confirmation',
+            html: emailHtml,
         });
 
         return NextResponse.json(newOrder, { status: 201 });
