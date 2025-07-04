@@ -4,10 +4,11 @@ import ProductModel from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 
 // 🔹 GET all products
-export async function GET()
+export async function GET(req: NextRequest)
 {
+    void req;
     await dbConnect();
-    const products = await ProductModel.find({});
+    const products = await ProductModel.find();
     return NextResponse.json(products);
 }
 
