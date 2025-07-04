@@ -5,11 +5,13 @@ import { RootState } from '@/store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-interface OrdersHistoryProps {
+interface OrdersHistoryProps
+{
   isRTL: boolean;
 }
 
-const OrdersHistory: React.FC<OrdersHistoryProps> = ({ isRTL }) => {
+const OrdersHistory: React.FC<OrdersHistoryProps> = ({ isRTL }) =>
+{
   const { orders } = useSelector((state: RootState) => state.orders);
 
   const getDeliveryText = (type: 'bilti' | 'delivery') =>
@@ -22,10 +24,10 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ isRTL }) => {
       </h2>
       <div className="space-y-3">
         {orders.map((order) => (
-          <Card key={order.id} className="bg-gradient-to-br from-pink-50 via-green-50 to-blue-50 rounded-xl shadow">
+          <Card key={order._id} className="bg-gradient-to-br from-pink-50 via-green-50 to-blue-50 rounded-xl shadow">
             <CardHeader>
               <div className="flex flex-col">
-                <CardTitle className="text-indigo-700">{isRTL ? 'آرڈر نمبر: ' : 'Order #'}{order.id}</CardTitle>
+                <CardTitle className="text-indigo-700">{isRTL ? 'آرڈر نمبر: ' : 'Order #'}{order._id}</CardTitle>
                 <span className="text-sm text-muted-foreground">
                   {new Date(order.createdAt).toLocaleDateString(isRTL ? 'ur-PK' : 'en-US', {
                     year: 'numeric',
@@ -37,7 +39,7 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ isRTL }) => {
                 </span>
                 <Badge variant="secondary" className="bg-blue-100 text-blue-700 mt-2">
                   {isRTL ? 'ڈیلیوری: ' : 'Delivery: '}
-                  {getDeliveryText(order.deliveryType)}
+                  {getDeliveryText(order.orderType)}
                 </Badge>
               </div>
             </CardHeader>
@@ -45,8 +47,8 @@ const OrdersHistory: React.FC<OrdersHistoryProps> = ({ isRTL }) => {
               <ul className="mb-2 space-y-1">
                 {order.items.map((item, i) => (
                   <li key={i} className="flex justify-between text-sm">
-                    <span>{item.productName} ({item.quantity} {item.unit})</span>
-                    <span>₨{item.price * item.quantity}</span>
+                    <span>{item.title} ({item.quantity} {item.unit})</span>
+                    {/* <span>₨{formatPrice(item.price) * item.quantity}</span> */}
                   </li>
                 ))}
               </ul>

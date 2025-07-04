@@ -70,8 +70,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ isRTL, toggleRTL }) =>
   {
     dispatch(logout());
   };
-
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  // const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  const pendingOrders = orders.length;
 
   return (
     <div className={`min-h-screen bg-gray-50 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>

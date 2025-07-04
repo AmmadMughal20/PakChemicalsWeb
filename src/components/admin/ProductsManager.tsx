@@ -12,21 +12,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SearchWithVoice } from '@/components/ui/search-with-voice';
 import { toast } from '@/hooks/use-toast';
+import axiosInstance from '@/lib/axiosInstance';
 import { RootState } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import
 {
-  deleteProduct,
-  Product,
-  updateProduct
+  Product
 } from '@/store/slices/productsSlice';
-import { fetchProducts } from '@/store/thunks/productThunks';
+import { createProduct, editProduct, fetchProducts, removeProduct } from '@/store/thunks/productThunks';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const demoImages = [
-  '/placeholder.svg?height=200&width=200',
+  '/placeholder.webp',
   'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=200&q=80',
   'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=200&q=80',
   'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=200&q=80',
@@ -88,9 +87,8 @@ const ProductsManager = () =>
     try
     {
       // Step 1: Get signature
-      const res = await fetch('/api/cloudinary-signature', { method: 'POST' });
-
-      const { signature, timestamp, apiKey, cloudName } = await res.json();
+      const res = await axiosInstance.post('/cloudinary-signature');
+      const { signature, timestamp, apiKey, cloudName } = await res.data;
 
       // Step 2: Upload to Cloudinary
       const form = new FormData();
@@ -156,24 +154,11 @@ const ProductsManager = () =>
     {
       if (editingProductId)
       {
-        await dispatch(updateProduct({ _id: editingProductId, ...data }));
+        await dispatch(editProduct({ _id: editingProductId, ...data }));
         toast({ title: 'Updated', description: 'Product updated successfully.' });
       } else
       {
-        const response = await fetch('/api/products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok)
-        {
-          const { error } = await response.json();
-          throw new Error(error || 'Failed to add product');
-        }
-
+        await dispatch(createProduct(data));
         dispatch(fetchProducts());
         toast({ title: 'Added', description: 'Product added successfully.' });
       }
@@ -200,7 +185,7 @@ const ProductsManager = () =>
     {
       try
       {
-        await dispatch(deleteProduct(id))
+        await dispatch(removeProduct(id));
         toast({ title: 'Deleted', description: 'Product deleted successfully.' });
       } catch
       {
@@ -265,11 +250,13 @@ const ProductsManager = () =>
                 src={product.image_link}
                 alt={product.title_english}
                 className="w-full h-32 object-cover rounded mb-2"
+                width={100}
+                height={100}
               />
               <p>{isRTL ? product.desc_urdu : product.desc_english}</p>
               <Badge>{isRTL ? product.category_urdu : product.category_english}</Badge>
               <p>
-                {isRTL ? `قیمت: ${product.price_urdu} / ${product.unit_urdu}` : `Price: ${product.price_english} / ${product.unit_english}`}
+                {isRTL ? `قیمت: ${product.price_urdu} ${product.unit_urdu}` : `Price: ${product.price_english} ${product.unit_english}`}
               </p>
             </CardContent>
           </Card>
@@ -356,7 +343,7 @@ const ProductsManager = () =>
               <Label htmlFor="image_upload">Upload Image</Label>
               <Input type="file" id="image_upload" ref={fileInputRef} onChange={handleImageUpload} />
               {formData.image && (
-                <Image src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded border" />
+                <Image src={formData.image} alt="Preview" className="mt-2 max-h-40 rounded border" width={100} height={100} />
               )}
             </div>
 

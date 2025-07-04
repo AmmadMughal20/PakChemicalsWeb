@@ -6,10 +6,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RootState } from '@/store';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { Distributor } from '@/store/slices/distributorsSlice';
+import { createDistributor, fetchDistributors } from '@/store/thunks/distributorThunks';
 import { Edit, MapPin, Phone, Plus, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface DistributorsManagerProps
 {
@@ -19,6 +21,7 @@ interface DistributorsManagerProps
 const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
 {
   const { distributors } = useAppSelector((state: RootState) => state.distributors);
+  const dispatch = useAppDispatch()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null);
@@ -60,50 +63,45 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
   //   setIsDialogOpen(true);
   // };
 
-  // const handleSubmit = async (e: React.FormEvent) =>
-  // {
-  //   e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) =>
+  {
+    e.preventDefault();
 
-  //   try
-  //   {
-  //     const distributorData = {
-  //       phone: formData.phone,
-  //       name: formData.name,
-  //       businessName: formData.businessName,
-  //       address: formData.address,
-  //       city: formData.city,
-  //       isActive: true,
-  //     };
+    try
+    {
+      const distributorData = {
+        name: formData.name,
+        phone: formData.phone,
+        // businessName: formData.businessName,
+        password: formData.password,
+        role: 'distributor',
+        address: formData.address,
+        city: formData.city,
+        isActive: true,
+      };
 
-  //     if (editingDistributor)
-  //     {
-  //       const updatedDistributor = await distributorsAPI.update(editingDistributor.id, distributorData);
-  //       dispatch(updateDistributor({ ...updatedDistributor, id: editingDistributor.id }));
-  //       toast({
-  //         title: isRTL ? 'کامیابی' : 'Success',
-  //         description: isRTL ? 'ڈسٹری بیوٹر اپڈیٹ ہو گیا' : 'Distributor updated successfully',
-  //       });
-  //     } else
-  //     {
-  //       const newDistributor = await distributorsAPI.create(distributorData);
-  //       dispatch(addDistributor(newDistributor));
-  //       toast({
-  //         title: isRTL ? 'کامیابی' : 'Success',
-  //         description: isRTL ? 'نیا ڈسٹری بیوٹر شامل ہو گیا' : 'New distributor added successfully',
-  //       });
-  //     }
+      // if (editingDistributor)
+      // {
+      //   const updatedDistributor = await distributorsAPI.update(editingDistributor.id, distributorData);
+      //   dispatch(updateDistributor({ ...updatedDistributor, id: editingDistributor.id }));
+      //   toast({
+      //     title: isRTL ? 'کامیابی' : 'Success',
+      //     description: isRTL ? 'ڈسٹری بیوٹر اپڈیٹ ہو گیا' : 'Distributor updated successfully',
+      //   });
+      // } else
+      // {
+      // const newDistributor = await distributorsAPI.create(distributorData);
+      dispatch(createDistributor(distributorData));
+      toast(isRTL ? 'نیا ڈسٹری بیوٹر شامل ہو گیا' : 'New distributor added successfully');
+      // }
 
-  //     setIsDialogOpen(false);
-  //   } catch (error)
-  //   {
-  //     console.log(error)
-  //     toast({
-  //       title: isRTL ? 'خرابی' : 'Error',
-  //       description: isRTL ? 'ڈسٹری بیوٹر محفوظ کرنے میں خرابی' : 'Failed to save distributor',
-  //       variant: 'destructive',
-  //     });
-  //   }
-  // };
+      setIsDialogOpen(false);
+    } catch (error)
+    {
+      console.log(error)
+      toast.error(isRTL ? 'ڈسٹری بیوٹر محفوظ کرنے میں خرابی' : 'Failed to save distributor');
+    }
+  };
 
   // const handleDelete = async (id: string) =>
   // {
@@ -129,6 +127,11 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
   //   }
   // };
 
+  useEffect(() =>
+  {
+    dispatch(fetchDistributors())
+  }, [dispatch])
+
   return (
     <div className="space-y-4">
       <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -151,7 +154,7 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
               </DialogTitle>
             </DialogHeader>
             <form
-              // onSubmit={handleSubmit}
+              onSubmit={handleSubmit}
               className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className={`${isRTL ? 'text-right block' : ''}`}>
@@ -241,7 +244,7 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {distributors.map((distributor) => (
-          <Card key={distributor.id}>
+          <Card key={distributor._id}>
             <CardHeader>
               <div className={`flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <CardTitle className={`text-lg ${isRTL ? 'text-right' : ''}`}>
@@ -263,9 +266,9 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className={`font-medium ${isRTL ? 'text-right' : ''}`}>
+                {/* <p className={`font-medium ${isRTL ? 'text-right' : ''}`}>
                   {distributor.businessName}
-                </p>
+                </p> */}
                 <div className={`flex items-center text-sm text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <Phone className="h-4 w-4 mr-1" />
                   <span>{distributor.phone}</span>
@@ -280,10 +283,10 @@ const DistributorsManager: React.FC<DistributorsManagerProps> = ({ isRTL }) =>
                 </div>
                 <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <Badge variant={distributor.isActive ? "default" : "secondary"}>
-                    {distributor.isActive ? (isRTL ? 'فعال' : 'Active') : (isRTL ? 'غیر فعال' : 'Inactive')}
+                    {distributor.isActive ? (isRTL ? 'غیر فعال' : 'Inactive') : (isRTL ? 'فعال' : 'Active')}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(distributor.createdAt).toLocaleDateString(isRTL ? 'ur-PK' : 'en-US')}
+                    {new Date(distributor.createdAt as string).toLocaleDateString(isRTL ? 'ur-PK' : 'en-US')}
                   </span>
                 </div>
               </div>

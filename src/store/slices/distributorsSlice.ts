@@ -1,18 +1,21 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Distributor {
-  id: string;
+export interface Distributor
+{
+  _id: string;
   phone: string;
   name: string;
-  businessName: string;
+  // businessName: string;
   address: string;
   city: string;
   isActive: boolean;
-  createdAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-interface DistributorsState {
+interface DistributorsState
+{
   distributors: Distributor[];
   loading: boolean;
   error: string | null;
@@ -28,25 +31,32 @@ const distributorsSlice = createSlice({
   name: 'distributors',
   initialState,
   reducers: {
-    setDistributors: (state, action: PayloadAction<Distributor[]>) => {
+    setDistributors: (state, action: PayloadAction<Distributor[]>) =>
+    {
       state.distributors = action.payload;
     },
-    addDistributor: (state, action: PayloadAction<Distributor>) => {
+    addDistributor: (state, action: PayloadAction<Distributor>) =>
+    {
       state.distributors.push(action.payload);
     },
-    updateDistributor: (state, action: PayloadAction<Distributor>) => {
-      const index = state.distributors.findIndex(d => d.id === action.payload.id);
-      if (index !== -1) {
+    updateDistributor: (state, action: PayloadAction<Distributor>) =>
+    {
+      const index = state.distributors.findIndex(d => d._id === action.payload._id);
+      if (index !== -1)
+      {
         state.distributors[index] = action.payload;
       }
     },
-    deleteDistributor: (state, action: PayloadAction<string>) => {
-      state.distributors = state.distributors.filter(d => d.id !== action.payload);
+    deleteDistributor: (state, action: PayloadAction<string>) =>
+    {
+      state.distributors = state.distributors.filter(d => d._id !== action.payload);
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
+    setLoading: (state, action: PayloadAction<boolean>) =>
+    {
       state.loading = action.payload;
     },
-    setError: (state, action: PayloadAction<string | null>) => {
+    setError: (state, action: PayloadAction<string | null>) =>
+    {
       state.error = action.payload;
     },
   },

@@ -1,27 +1,24 @@
 
+import { CartItem, CustomerInfo } from '@/models/Order';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface OrderItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-  unit: string;
-}
+export interface Order
+{
 
-export interface Order {
-  id: string;
-  distributorId: string;
-  distributorName: string;
-  items: OrderItem[];
-  total: number;
-  deliveryType: 'bilti' | 'delivery'; // New field
+  _id: string,
+  createdAt: string,
+  customer: CustomerInfo,
+  items: CartItem[]
+  orderType: 'bilti' | 'delivery'; // New field
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  createdAt: string;
+  timestamp: string,
+  total: number,
   updatedAt: string;
+  _v: string;
 }
 
-interface OrdersState {
+interface OrdersState
+{
   orders: Order[];
   loading: boolean;
   error: string | null;
@@ -37,30 +34,38 @@ const ordersSlice = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    setOrders: (state, action: PayloadAction<Order[]>) => {
+    setOrders: (state, action: PayloadAction<Order[]>) =>
+    {
       state.orders = action.payload;
     },
-    addOrder: (state, action: PayloadAction<Order>) => {
+    addOrder: (state, action: PayloadAction<Order>) =>
+    {
       state.orders.unshift(action.payload);
     },
-    updateOrderStatus: (state, action: PayloadAction<{ orderId: string; status: Order['status'] }>) => {
-      const order = state.orders.find(o => o.id === action.payload.orderId);
-      if (order) {
+    updateOrderStatus: (state, action: PayloadAction<{ orderId: string; status: Order['status'] }>) =>
+    {
+      const order = state.orders.find(o => o._id === action.payload.orderId);
+      if (order)
+      {
         order.status = action.payload.status;
         order.updatedAt = new Date().toISOString();
       }
     },
-    updateOrderDeliveryType: (state, action: PayloadAction<{ orderId: string; deliveryType: 'bilti' | 'delivery' }>) => {
-      const order = state.orders.find(o => o.id === action.payload.orderId);
-      if (order) {
-        order.deliveryType = action.payload.deliveryType;
+    updateOrderDeliveryType: (state, action: PayloadAction<{ orderId: string; orderType: 'bilti' | 'delivery' }>) =>
+    {
+      const order = state.orders.find(o => o._id === action.payload.orderId);
+      if (order)
+      {
+        order.orderType = action.payload.orderType;
         order.updatedAt = new Date().toISOString();
       }
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
+    setLoading: (state, action: PayloadAction<boolean>) =>
+    {
       state.loading = action.payload;
     },
-    setError: (state, action: PayloadAction<string | null>) => {
+    setError: (state, action: PayloadAction<string | null>) =>
+    {
       state.error = action.payload;
     },
   },

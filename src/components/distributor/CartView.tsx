@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { RootState } from '@/store';
 import { clearCart, removeFromCart, updateQuantity } from '@/store/slices/cartSlice';
-import { addOrder, Order } from '@/store/slices/ordersSlice';
 import { MapPin, Minus, Plus, ShoppingBag, Trash2, Truck } from 'lucide-react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -100,19 +99,19 @@ const CartView: React.FC<CartViewProps> = ({ isRTL }) =>
       //   status: 'pending' as const,
       // };
 
-      const newOrder: Order = {
-        id: "",
-        distributorId: '',
-        distributorName: '',
-        items: [],
-        total: 200,
-        deliveryType: 'bilti',
-        status: 'pending',
-        createdAt: '',
-        updatedAt: ''
-      }
-      dispatch(addOrder(newOrder));
-      dispatch(clearCart());
+      // const newOrder: Order = {
+      //   _id: "",
+      //   distributorId: '',
+      //   distributorName: '',
+      //   items: [],
+      //   total: 200,
+      //   deliveryType: 'bilti',
+      //   status: 'pending',
+      //   createdAt: '',
+      //   updatedAt: ''
+      // }
+      // dispatch(addOrder(newOrder));
+      // dispatch(clearCart());
 
       // Reset delivery form
       setDeliveryType('delivery');

@@ -93,3 +93,20 @@ export async function POST(req: Request)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
+
+export async function GET(req: Request)
+{
+    await dbConnect();
+    void req
+    try
+    {
+        const orders = await OrderModel.find();
+        return NextResponse.json({ orders });
+    } catch (err)
+    {
+        console.error('[GET /api/orders] Error:', err);
+        return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+    }
+}
+

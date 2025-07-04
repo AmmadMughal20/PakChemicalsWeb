@@ -15,6 +15,7 @@ const protectedRoutes: {
     },
     '/api/orders': {
         POST: ['admin', 'distributor'],
+        GET: ['admin'],
     },
     '/api/orders/my': {
         GET: ['admin', 'distributor'],
@@ -42,7 +43,7 @@ export async function middleware(req: NextRequest)
     if (!matchedEntry) return NextResponse.next(); // route is not protected
 
     const [route, methodMap] = matchedEntry;
-    console.log(route, 'printin route')
+    console.log(route, 'printing route')
     const allowedRoles = methodMap[method];
 
     if (!allowedRoles)

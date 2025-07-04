@@ -9,6 +9,7 @@ export interface User extends Document
     phone: string
     password: string
     address?: string
+    city?: string
     role: UserRole
     joingingDate: Date,
     refreshToken: string

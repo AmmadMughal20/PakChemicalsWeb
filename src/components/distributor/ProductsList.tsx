@@ -1,16 +1,17 @@
 
-import React, { useState, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { addToCart } from '@/store/slices/cartSlice';
-import { toast } from '@/hooks/use-toast';
-import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { SearchWithVoice } from '@/components/ui/search-with-voice';
+import { toast } from '@/hooks/use-toast';
+import { RootState } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { addToCart } from '@/store/slices/cartSlice';
+import { fetchProducts } from '@/store/thunks/productThunks';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface ProductsListProps
 {
@@ -19,8 +20,8 @@ interface ProductsListProps
 
 const ProductsList: React.FC<ProductsListProps> = ({ isRTL }) =>
 {
-  const dispatch = useDispatch();
-  const { products } = useSelector((state: RootState) => state.products);
+  const dispatch = useAppDispatch();
+  const { products } = useAppSelector((state: RootState) => state.products);
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -83,6 +84,12 @@ const ProductsList: React.FC<ProductsListProps> = ({ isRTL }) =>
     setQuantities(prev => ({ ...prev, [productId]: 1 }));
   };
 
+  useEffect(() =>
+  {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+
   return (
     <div className="space-y-4">
       {/* Fixed Search Header */}
@@ -127,6 +134,8 @@ const ProductsList: React.FC<ProductsListProps> = ({ isRTL }) =>
                     src={product.image_link}
                     alt={isRTL ? product.title_urdu : product.title_english}
                     className="w-full h-full object-cover rounded-lg"
+                    width={100}
+                    height={100}
                   />
                 </div>
                 <CardTitle className={`text-lg ${isRTL ? 'text-right' : ''}`}>
