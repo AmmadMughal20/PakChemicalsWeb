@@ -6,6 +6,8 @@ import
 {
     setOrders,
     addOrder,
+    setTotalPages,
+    setCurrentPage,
     // updateOrder,
     // deleteOrder,
     setLoading,
@@ -13,13 +15,31 @@ import
     Order,
 } from '../slices/ordersSlice';
 
-export const fetchOrders = () => async (dispatch: AppDispatch) =>
+interface OrderFilters
+{
+    page?: number;
+    limit?: number;
+    dateFrom?: string;     // 'YYYY-MM-DD'
+    dateTo?: string;       // 'YYYY-MM-DD'
+    orderType?: 'delivery' | 'bilti';
+}
+
+
+export const fetchOrders = (filters: OrderFilters = {}) => async (dispatch: AppDispatch) =>
 {
     dispatch(setLoading(true));
     try
     {
-        const res = await axiosInstance.get('/orders');
+        const params = new URLSearchParams();
+
+        if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+        if (filters.dateTo) params.append('dateTo', filters.dateTo);
+        if (filters.orderType) params.append('orderType', filters.orderType);
+
+        const res = await axiosInstance.get(`/orders?${params.toString()}`);
         dispatch(setOrders(res.data.orders));
+        dispatch(setTotalPages(res.data.pages)); // <-- NEW
+        dispatch(setCurrentPage(res.data.page)); // <-- NEW
     } catch (error: unknown)
     {
         const message = error instanceof Error ? error.message : 'Something went wrong';

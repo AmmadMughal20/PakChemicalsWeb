@@ -118,3 +118,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.receipt {
+  /* Override Tailwind oklch-based colors if any */
+  --tw-gradient-from: #d1fae5;
+  /* green-50 */
+  --tw-gradient-via: #dbeafe;
+  /* blue-50 */
+  --tw-gradient-to: #ede9fe;
+  /* purple-50 */
+}

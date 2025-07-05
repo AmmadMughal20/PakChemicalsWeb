@@ -38,9 +38,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ isRTL }) =>
     setLoading(true);
     dispatch(loginStart());
 
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+
     try
     {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(baseUrl + '/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

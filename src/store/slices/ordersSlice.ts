@@ -22,12 +22,22 @@ interface OrdersState
   orders: Order[];
   loading: boolean;
   error: string | null;
+  totalPages: number;
+  currentPage: number;
+  filters: {
+    dateFrom?: string;
+    dateTo?: string;
+    orderType?: 'bilti' | 'delivery';
+  }
 }
 
 const initialState: OrdersState = {
   orders: [],
   loading: false,
   error: null,
+  totalPages: 1,
+  currentPage: 1,
+  filters: {},
 };
 
 const ordersSlice = createSlice({
@@ -37,6 +47,14 @@ const ordersSlice = createSlice({
     setOrders: (state, action: PayloadAction<Order[]>) =>
     {
       state.orders = action.payload;
+    },
+    setTotalPages: (state, action: PayloadAction<number>) =>
+    {
+      state.totalPages = action.payload;
+    },
+    setCurrentPage: (state, action: PayloadAction<number>) =>
+    {
+      state.currentPage = action.payload;
     },
     addOrder: (state, action: PayloadAction<Order>) =>
     {
@@ -68,8 +86,12 @@ const ordersSlice = createSlice({
     {
       state.error = action.payload;
     },
+    setFilters: (state, action: PayloadAction<OrdersState['filters']>) =>
+    {
+      state.filters = action.payload;
+    },
   },
 });
 
-export const { setOrders, addOrder, updateOrderStatus, updateOrderDeliveryType, setLoading, setError } = ordersSlice.actions;
+export const { setOrders, addOrder, updateOrderStatus, updateOrderDeliveryType, setLoading, setError, setFilters, setTotalPages, setCurrentPage, } = ordersSlice.actions;
 export default ordersSlice.reducer;

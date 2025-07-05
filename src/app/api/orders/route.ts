@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/dbConnect';
-import OrderModel from '@/models/Order';
+import OrderModel, { OrderDocument } from '@/models/Order';
 import { sendOrderEmail } from '@/lib/mail';
+import { parseISO } from 'date-fns';
+import { FilterQuery } from 'mongoose';
 
 export interface JwtPayload
 {
@@ -98,15 +100,67 @@ export async function POST(req: Request)
 export async function GET(req: Request)
 {
     await dbConnect();
-    void req
+
     try
     {
-        const orders = await OrderModel.find();
-        return NextResponse.json({ orders });
+        const { searchParams } = new URL(req.url);
+
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const skip = (page - 1) * limit;
+
+        const dateFrom = searchParams.get('dateFrom');
+        const dateTo = searchParams.get('dateTo');
+        const orderType = searchParams.get('orderType'); // 'delivery' or 'bilti'
+
+        const filter: FilterQuery<OrderDocument> = {};
+
+        if (dateFrom || dateTo)
+        {
+            filter.createdAt = {};
+
+            if (dateFrom)
+            {
+                const fromDate = parseISO(dateFrom);
+                if (!isNaN(fromDate.getTime()))
+                {
+                    filter.createdAt.$gte = fromDate;
+                }
+            }
+
+            if (dateTo)
+            {
+                const toDate = parseISO(dateTo);
+                if (!isNaN(toDate.getTime()))
+                {
+                    filter.createdAt.$lte = toDate;
+                }
+            }
+        }
+
+        if (orderType)
+        {
+            filter.orderType = orderType;
+        }
+
+        const [orders, total] = await Promise.all([
+            OrderModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+            OrderModel.countDocuments(filter),
+        ]);
+
+
+        return NextResponse.json({
+            orders,
+            total,
+            page,
+            pages: Math.ceil(total / limit),
+        });
+
     } catch (err)
     {
         console.error('[GET /api/orders] Error:', err);
         return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
     }
 }
+
 
