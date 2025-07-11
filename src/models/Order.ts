@@ -6,6 +6,7 @@ export interface CustomerInfo
     name: string;
     phone: string;
     address: string;
+    city: string;
 }
 
 export interface CartItem
@@ -22,6 +23,8 @@ export interface OrderDocument extends Document
 {
     orderType: 'delivery' | 'bilti';
     customer: CustomerInfo;
+    orderAddress: string;
+    orderCity: string;
     items: CartItem[];
     total: number;
     timestamp: string;
@@ -50,6 +53,7 @@ const CustomerSchema = new Schema<CustomerInfo>(
             match: [/^(?:\+92|0)3[0-9]{9}$/, 'Enter a valid Pakistani phone number'],
         },
         address: { type: String, required: true },
+        city: { type: String, required: true }
     },
     { _id: false }
 );
@@ -62,6 +66,8 @@ const OrderSchema = new Schema<OrderDocument>(
         timestamp: { type: String, required: true },
         orderType: { type: String, enum: ['delivery', 'bilti'], required: true },
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        orderAddress: { type: String, required: true },
+        orderCity: { type: String, required: true },
         status: {
             type: String,
             enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
@@ -72,7 +78,8 @@ const OrderSchema = new Schema<OrderDocument>(
 );
 
 const OrderModel =
-    (mongoose.models.Order as mongoose.Model<OrderDocument>) ||
-    mongoose.model<OrderDocument>('Order', OrderSchema);
+    (mongoose.models.Order
+        ? mongoose.model<OrderDocument>('Order')
+        : mongoose.model<OrderDocument>('Order', OrderSchema));
 
 export default OrderModel;

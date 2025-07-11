@@ -52,8 +52,12 @@ export async function POST(req: Request)
         phone: user.phone,
         // email: user.email,
         address: user.address,
+        city: user.city,
+        businessName: user.businessName,
         role: user.role,
     };
+
+    console.log(jwtPayload)
 
     const accessToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, {
         expiresIn: '7d', // short-lived

@@ -12,7 +12,9 @@ interface UserPost
     password: string;
     role: string;
     email?: string;
-    address?: string;
+    businessName: string;
+    address: string;
+    city: string;
 }
 // GET /api/users
 export async function GET(req: NextRequest)
@@ -52,13 +54,12 @@ export async function POST(req: NextRequest)
         );
     }
 
-    const { name, phone, password, role, email } = body;
-
+    const { name, phone, password, role, email, address, city, businessName } = body;
     // ✅ Required fields
-    if (!name || !phone || !password || !role)
+    if (!name || !phone || !password || !role || !address || !city || !businessName)
     {
         return NextResponse.json(
-            { error: 'Name, phone, password, and role are required' },
+            { error: 'Name, phone, password, role, address, city and businessName are required' },
             { status: 400 }
         );
     }
@@ -94,6 +95,27 @@ export async function POST(req: NextRequest)
             { status: 400 }
         );
     }
+    if (address.length > 200)
+    {
+        return NextResponse.json(
+            { error: 'Address must be at most 200 characters long' },
+            { status: 400 }
+        );
+    }
+    if (city.length > 30)
+    {
+        return NextResponse.json(
+            { error: 'City must be at most 30 characters long' },
+            { status: 400 }
+        );
+    }
+    if (businessName.length > 100)
+    {
+        return NextResponse.json(
+            { error: 'Business Name must be at most 100 characters long' },
+            { status: 400 }
+        );
+    }
 
     try
     {
@@ -125,7 +147,6 @@ export async function PUT(req: Request)
 {
     const url = new URL(req.url);
     const userId = url.searchParams.get('id');
-    console.log(userId, 'printing UserId')
 
     await dbConnect();
 
@@ -136,7 +157,7 @@ export async function PUT(req: Request)
     }
 
     const body = await req.json();
-    const { phone, email, password, name, address } = body;
+    const { phone, email, password, name, address, city, businessName } = body;
 
     // ✅ Validate phone
     if (phone)
@@ -182,6 +203,22 @@ export async function PUT(req: Request)
         );
     }
 
+    if (city && city.length > 30)
+    {
+        return NextResponse.json(
+            { error: 'City must be at most 30 characters' },
+            { status: 400 }
+        );
+    }
+
+    if (businessName && businessName.length > 100)
+    {
+        return NextResponse.json(
+            { error: 'Business Name must be at most 100 characters' },
+            { status: 400 }
+        );
+    }
+
     // ✅ Hash password if provided
     if (password)
     {
@@ -212,6 +249,8 @@ export async function PUT(req: Request)
             phone: updatedUser.phone,
             email: updatedUser.email,
             address: updatedUser.address,
+            city: updatedUser.city,
+            businessName: updatedUser.businessName,
             role: updatedUser.role,
         };
 

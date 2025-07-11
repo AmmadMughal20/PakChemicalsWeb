@@ -12,7 +12,8 @@ export interface JwtPayload
     name: string;
     phone: string;
     email?: string;
-    address?: string;
+    address: string;
+    city: string;
     role?: string;
 }
 
@@ -43,9 +44,9 @@ export async function POST(req: Request)
         }
 
         const body = await req.json();
-        const { customer, products, total, date, orderType } = body;
+        const { customer, products, total, date, orderType, orderAddress, orderCity } = body;
 
-        if (!customer || !products || !total || !date || !orderType)
+        if (!customer || !products || !total || !date || !orderType || !orderAddress || !orderCity)
         {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
@@ -59,6 +60,8 @@ export async function POST(req: Request)
             timestamp: date,
             orderType,
             user: decoded.id,
+            orderAddress,
+            orderCity
         });
 
 
@@ -69,6 +72,8 @@ export async function POST(req: Request)
             <p><strong>Address:</strong> ${customer.address}</p>
             <p><strong>Total:</strong> PKR ${total}</p>
             <p><strong>Order Type:</strong> ${orderType}</p>
+            <p><strong>Order Address:</strong> ${orderAddress}</p>
+            <p><strong>Order City:</strong> ${orderCity}</p>
             <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
             <h3>Items:</h3>
             <ul>
@@ -95,7 +100,6 @@ export async function POST(req: Request)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
-
 
 export async function GET(req: Request)
 {

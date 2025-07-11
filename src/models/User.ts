@@ -8,10 +8,11 @@ export interface User extends Document
     email?: string
     phone: string
     password: string
-    address?: string
-    city?: string
+    address: string
+    city: string
+    businessName: string
     role: UserRole
-    joingingDate: Date,
+    joiningDate: Date
     refreshToken: string
 }
 
@@ -19,24 +20,12 @@ const UserSchema: Schema<User> = new Schema({
     name: {
         type: String,
         required: [true, 'Name is missing!'],
-        unique: true
     },
     email: {
         type: String,
         sparse: true,
         match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Enter valid email'],
         validate: [
-            // {
-            //     validator: function (this: User, value: string)
-            //     {
-            //         if (this.role === 'admin' && !value)
-            //         {
-            //             return false;
-            //         }
-            //         return true;
-            //     },
-            //     message: 'Email is required for admin users'
-            // },
             {
                 validator: async function (this: User, value: string)
                 {
@@ -59,12 +48,24 @@ const UserSchema: Schema<User> = new Schema({
         maxlength: [200, 'Address is too long'],
         trim: true
     },
+    city: {
+        type: String,
+        maxlength: [30, 'City is too long'],
+        trim: true,
+        required: true
+    },
+    businessName: {
+        type: String,
+        maxlength: [100, 'Business Name is too long'],
+        trim: true,
+        required: true
+    },
     password: {
         type: String,
         required: [true, 'Password is missing!'],
     },
     role: { type: String, enum: ['admin', 'distributor'], default: 'distributor' },
-    joingingDate: { type: Date, default: Date.now },
+    joiningDate: { type: Date, default: Date.now },
     refreshToken: { type: String }
 }, { timestamps: true })
 
@@ -84,7 +85,8 @@ UserSchema.set('toObject', {
     }
 });
 const UserModel =
-    (mongoose.models?.User as mongoose.Model<User>) ||
-    mongoose.model<User>('User', UserSchema);
+    (mongoose.models.User
+        ? mongoose.model<User>('User')
+        : mongoose.model<User>('User', UserSchema));
 
 export default UserModel;

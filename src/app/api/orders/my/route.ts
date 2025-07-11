@@ -10,8 +10,6 @@ export async function GET(req: NextRequest)
     try
     {
         const authHeader = req.headers.get('token');
-        console.log(authHeader, 'printing authheaders')
-
 
         const token = authHeader?.split(' ')[1];
 
